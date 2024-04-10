@@ -29,6 +29,9 @@ from ppdet.utils.logger import setup_logger
 
 logger = setup_logger('train')
 
+
+# All logic starting from here
+
 def parse_args():
     parser = ArgsParser()
     parser.add_argument(
