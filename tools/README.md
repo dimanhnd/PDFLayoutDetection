@@ -47,8 +47,8 @@ First, create a directory for the pre-trained model:
    wget https://paddleocr.bj.bcebos.com/ppstructure/models/layout/picodet_lcnet_x1_0_fgd_layout_infer.tar 
    ``` 
    - 3.1: Train - If you want to train your own data set, you need to modify the data configuration and the number of categories in the configuration file.
-   Model 1: Suggestion: 
-   Using 'configs/picodet/legacy_model/application/layout_analysis/picodet_lcnet_x1_0_layout.yml' as an example, the change is as follows:
+      - Model 1: Suggestion: 
+        Using 'configs/picodet/legacy_model/application/layout_analysis/picodet_lcnet_x1_0_layout.yml' as an example, the change is as follows:
 
    ``` yaml
       metric: COCO
@@ -79,7 +79,7 @@ First, create a directory for the pre-trained model:
          # Modify to your own test data label file
          anno_path: /root/publaynet/val.json
    ```
-   Model2: In use: 
+   - Model 2: In use: 
    Using "PDFLayoutDetection/configs/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.yml"
    ``` yml
       # update model train
@@ -109,7 +109,8 @@ First, create a directory for the pre-trained model:
       python3 -m paddle.distributed.launch --gpus '0,1,2,3'  tools/train.py \
          -c configs/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.yml \
          --eval
-      ```
+   ```
+
 4. Model evaluation and prediction
 Model parameters in training are saved by default in output/ Under the layout directory. When evaluating indicators, you need to set weights to point to the saved parameter file.Assessment datasets can be accessed via configs/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.yml.
    ``` bash
@@ -143,3 +144,5 @@ With trained PaddleDetection model, you can use the following commands to make m
    ```
 7. Visualize data:
    See on output_dir folder
+   ```markdown
+      ![Image Name](https://github.com/dimanhnd/PDFLayoutDetection/blob/release/2.7/output_dir/page_10_page_1.png)
