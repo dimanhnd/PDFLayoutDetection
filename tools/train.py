@@ -186,7 +186,7 @@ def main():
         cfg.use_mlu = False
 
     if cfg.use_gpu:
-        print('i am in gpu')
+        print('i am in gpu - checking')
         place = paddle.set_device('gpu')
         
     elif cfg.use_npu:
