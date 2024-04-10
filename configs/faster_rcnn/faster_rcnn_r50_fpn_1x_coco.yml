@@ -5,4 +5,5 @@ _BASE_: [
   '_base_/faster_rcnn_r50_fpn.yml',
   '_base_/faster_fpn_reader.yml',
 ]
+epoch: 100
 weights: output/faster_rcnn_r50_fpn_1x_coco/model_final

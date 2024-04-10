@@ -1174,7 +1174,7 @@ class Trainer(object):
             })
         if prune_input:
             static_model = paddle.jit.to_static(
-                self.model, input_spec=input_spec)
+                self.model, input_spec=input_spec, full_graph=True)
             # NOTE: dy2st do not pruned program, but jit.save will prune program
             # input spec, prune input spec here and save with pruned input spec
             pruned_input_spec = _prune_input_spec(
@@ -1422,3 +1422,60 @@ class Trainer(object):
                     imshow_lanes(img, lanes, out_file=out_file)
 
         return results
+    
+    def get_bboxes(self,
+                images):
+
+        self.dataset.set_images(images)
+        loader = create('TestReader')(self.dataset, 0)
+
+        anno_file = self.dataset.get_anno()
+        clsid2catid, catid2name = get_categories(
+            self.cfg.metric, anno_file=anno_file)
+
+        # Run Infer 
+        self.status['mode'] = 'test'
+        self.model.eval()
+        if self.cfg.get('print_flops', False):
+            flops_loader = create('TestReader')(self.dataset, 0)
+            self._flops(flops_loader)
+        results = []
+        for step_id, data in enumerate(tqdm(loader)):
+            self.status['step_id'] = step_id
+            # forward
+            if hasattr(self.model, 'modelTeacher'):
+                outs = self.model.modelTeacher(data)
+            else:
+                outs = self.model(data)
+
+            for key in ['im_shape', 'scale_factor', 'im_id']:
+                if isinstance(data, typing.Sequence):
+                    outs[key] = data[0][key]
+                else:
+                    outs[key] = data[key]
+            for key, value in outs.items():
+                if hasattr(value, 'numpy'):
+                    outs[key] = value.numpy()
+            results.append(outs)
+
+        bboxes_out = []
+        for outs in results:
+            batch_res = get_infer_results(outs, clsid2catid)
+            bbox_num = outs['bbox_num']
+
+            start = 0
+            for i, im_id in enumerate(outs['im_id']):
+                end = start + bbox_num[i]
+                bbox_res_after = []
+                bbox_res = batch_res['bbox'][start:end] \
+                        if 'bbox' in batch_res else None
+                for b_res in bbox_res:
+                    if(b_res['score'] > 0.6):
+                        bbox_res_after.append(b_res)
+                bboxes_out.append(bbox_res_after)
+        # sniper
+        if type(self.dataset) == SniperCOCODataSet:
+            results = self.dataset.anno_cropper.aggregate_chips_detections(
+                results)
+       
+        return bboxes_out

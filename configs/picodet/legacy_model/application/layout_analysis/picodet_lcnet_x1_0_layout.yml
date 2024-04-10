@@ -6,12 +6,12 @@ _BASE_: [
 ]
 
 pretrain_weights: https://paddledet.bj.bcebos.com/models/pretrained/LCNet_x1_0_pretrained.pdparams
-weights: output/picodet_lcnet_x1_0_layout/model_final
+weights: output_weight/picodet_lcnet_x1_0_layout/model_final
 find_unused_parameters: True
 use_ema: true
 cycle_epoch: 10
-snapshot_epoch: 1
-epoch: 100
+snapshot_epoch: 10
+epoch: 500
 
 PicoDet:
   backbone: LCNet
@@ -24,24 +24,24 @@ LCNet:
   feature_maps: [3, 4, 5]
 
 metric: COCO
-num_classes: 5
+num_classes: 4
 
 TrainDataset:
     name: COCODataSet
     image_dir: train
-    anno_path: train.json
-    dataset_dir: ./dataset/publaynet/
+    anno_path: instance_train.json
+    dataset_dir: dataset/custom_data_r/
     data_fields: ['image', 'gt_bbox', 'gt_class', 'is_crowd']
 
 EvalDataset:
     name: COCODataSet
-    image_dir: val
-    anno_path: val.json
-    dataset_dir: ./dataset/publaynet/
+    image_dir: train
+    anno_path: instance_train.json
+    dataset_dir: dataset/custom_data_r/
 
 TestDataset:
   !ImageFolder
-    anno_path: ./dataset/publaynet/val.json
+    anno_path: dataset/custom_data_r/instance_train.json
 
 
 worker_num: 8

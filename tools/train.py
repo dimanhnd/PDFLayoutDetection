@@ -16,6 +16,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import paddle
 import os
 import sys
 
@@ -159,6 +160,10 @@ def run(FLAGS, cfg):
 
 
 def main():
+    if paddle.is_compiled_with_cuda():
+        print("PaddlePaddle is compiled with CUDA support.")
+    else:
+        print("PaddlePaddle is not compiled with CUDA support.")
     FLAGS = parse_args()
     cfg = load_config(FLAGS.config)
     merge_args(cfg, FLAGS)
@@ -173,6 +178,7 @@ def main():
         cfg.use_xpu = False
 
     if 'use_gpu' not in cfg:
+        print('what is this mean')
         cfg.use_gpu = False
 
     # disable mlu in config by default
@@ -180,7 +186,9 @@ def main():
         cfg.use_mlu = False
 
     if cfg.use_gpu:
+        print('i am in gpu')
         place = paddle.set_device('gpu')
+        
     elif cfg.use_npu:
         place = paddle.set_device('npu')
     elif cfg.use_xpu:
